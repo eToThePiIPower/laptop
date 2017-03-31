@@ -156,6 +156,14 @@ else
   fancy_echo "Using RVM ..."
 fi
 
+fancy_echo "Searching for NVM ..."
+if [[ -z $NVM_DIR ]] ; then
+  fancy_echo "Installing NVM ..."
+  curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.1/install.sh | bash
+else
+  fancy_echo "Using NVM ..."
+fi
+
 gem update --system
 gem_install_or_update 'bundler'
 number_of_cores=$(sysctl -n hw.ncpu)
