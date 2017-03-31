@@ -141,30 +141,21 @@ brew "qt"
 # Programming languages
 brew "libyaml" # should come after openssl
 brew "node"
-brew "rbenv"
-brew "ruby-build"
 
 # Databases
 brew "postgres", restart_service: true
 brew "redis", restart_service: true
 EOF
 
-fancy_echo "Configuring Ruby ..."
-find_latest_ruby() {
-  rbenv install -l | grep -v - | tail -1 | sed -e 's/^ *//'
-}
-
-ruby_version="$(find_latest_ruby)"
-# shellcheck disable=SC2016
-append_to_zshrc 'eval "$(rbenv init - --no-rehash)"' 1
-eval "$(rbenv init -)"
-
-if ! rbenv versions | grep -Fq "$ruby_version"; then
-  RUBY_CONFIGURE_OPTS=--with-openssl-dir=/usr/local/opt/openssl rbenv install -s "$ruby_version"
+fancy_echo "Searching for RVM ..."
+if ! rvm --version 1>/dev/null 2>&1; then
+  fancy_echo "Installing RVM ..."
+  gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3
+  \curl -sSL https://get.rvm.io | bash
+else
+  fancy_echo "Using RVM ..."
 fi
 
-rbenv global "$ruby_version"
-rbenv shell "$ruby_version"
 gem update --system
 gem_install_or_update 'bundler'
 number_of_cores=$(sysctl -n hw.ncpu)
